@@ -17,8 +17,11 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -112,7 +115,26 @@ public class GoogleMapsActivity extends AppCompatActivity implements GoogleApiCl
             // add the MarkerOptions to the Google Map
             // add the Place information to the places list
             // notify the placesAdapter that the data set was changed
+            if ( latitudeEditText == null || latitudeEditText.getText().toString().isEmpty() ||
+                    longitudeEditText == null || longitudeEditText.getText().toString().isEmpty() ||
+                    nameEditText == null || nameEditText.getText().toString().isEmpty()) {
+                Toast.makeText(getApplicationContext(), "All fields should be filled!", Toast.LENGTH_SHORT).show();
+                return;
+            }
 
+            Double latitude = Double.parseDouble(latitudeEditText.getText().toString());
+            Double longitude = Double.parseDouble(longitudeEditText.getText().toString());
+
+            MarkerOptions marker = new MarkerOptions();
+            marker.title(nameEditText.getText().toString());
+            marker.position(new LatLng(latitude, longitude));
+            marker.icon(BitmapDescriptorFactory.defaultMarker(Utilities.getDefaultMarker(markerTypeSpinner.getSelectedItemPosition())));
+            googleMap.addMarker(marker);
+            // coordinates for bucharest
+            // latitude: 44.4268
+            // longitude: 26.1025
+            places.add(new Place(latitude, longitude, nameEditText.getText().toString(), markerTypeSpinner.getSelectedItemPosition()));
+            placesAdapter.notifyDataSetChanged();
         }
     }
 
@@ -127,7 +149,13 @@ public class GoogleMapsActivity extends AppCompatActivity implements GoogleApiCl
             // clear the Google Map
             // clear the places List
             // notify the placesAdapter that the data set was changed
-
+            if(places.isEmpty() || places==null) {
+                Toast.makeText(getApplicationContext(), "There are no markers on the map!", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            googleMap.clear();
+            places.clear();
+            placesAdapter.notifyDataSetChanged();
         }
     }
 
